@@ -1,0 +1,37 @@
+############################################
+# Live Terraform Pipeline
+# Repo: tf-live/midh-dev-ec2
+#
+# Purpose:
+# - Uses the centralized enterprise live Terraform pipeline.
+# - Runs source governance, Checkov, TFLint, Terraform plan, and OPA plan checks.
+# - Applies only through the shared manual apply job on main.
+# - Syncs the created EC2 host into AWX after apply.
+############################################
+
+# Includes the shared live Terraform pipeline from the platform repository.
+include:
+  - project: infra_team/platform-pipelines
+    ref: main
+    file: terraform/live/aws.yml
+
+# Repository-level variables passed into Terraform and AWX jobs.
+variables:
+  TF_VAR_aws_region: "$AWS_DEFAULT_REGION"
+  TF_STATE_NAME: "midh-dev-ec2"
+  AWX_HOST: "http://awx.midhtech.local"
+  # Sets the default AWX inventory name for dev EC2 hosts.
+  # AWX_INVENTORY: "midh-dev"
+  # AWX_ORGANIZATION: "platform-team1"
+  AWX_GROUP: "linux"
+
+awx-sync:
+  stage: configure
+  extends: .terraform_awx_sync
+  needs:
+    - job: apply
+      artifacts: true
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
+    - when: never
