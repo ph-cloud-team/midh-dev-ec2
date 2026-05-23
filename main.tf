@@ -116,6 +116,10 @@ module "ec2_instance" {
   # Allows only HTTPS egress to the VPC CIDR by default.
   egress_cidr_blocks = [data.aws_vpc.selected.cidr_block]
 
+  # Allows HTTPS egress to the regional S3 Gateway endpoint prefix list for
+  # AWX SSM module transfer through the dedicated S3 bucket.
+  egress_prefix_list_ids = [data.aws_prefix_list.s3.id]
+
   # Enables CloudWatch agent permissions for AWX Day-2 configuration.
   attach_cloudwatch_agent_policy = true
 
