@@ -35,3 +35,14 @@ awx-sync:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: manual
     - when: never
+
+awx-cleanup:
+  stage: configure
+  extends: .terraform_awx_cleanup
+  needs:
+    - job: destroy
+      artifacts: true
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: on_success
+    - when: never

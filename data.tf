@@ -21,6 +21,11 @@ data "aws_route_table" "private" {
   route_table_id = var.private_route_table_id
 }
 
+# Reads the AWS-managed S3 prefix list used by the S3 Gateway endpoint route.
+data "aws_prefix_list" "s3" {
+  name = "com.amazonaws.${var.aws_region}.s3"
+}
+
 data "aws_caller_identity" "current" {}
 
 data "aws_partition" "current" {}
